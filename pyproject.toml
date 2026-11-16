@@ -1,0 +1,26 @@
+[project]
+name = "ics635-hw2"
+version = "0.1.0"
+description = "Student environment for ICS 635 Homework 2"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "torch>=2.13,<3",
+    "transformers==5.14.1",
+    "datasets==5.0.1",
+    "peft==0.20.0",
+    "trl==1.9.2",
+    "accelerate==1.14.0",
+    "sentencepiece==0.2.2",
+    "pandas>=2.2,<3",
+    "scikit-learn>=1.6,<2",
+    "matplotlib>=3.9,<4",
+    "jupyterlab>=4,<5",
+    "ipykernel>=6,<8",
+]
+
+[tool.uv]
+package = false
+
+# Keep this student project independent of the parent course repository.
+[tool.uv.workspace]
+members = []
