@@ -851,3 +851,39 @@ models. Searched for the SSH setup and found no record of it in this repo,
 
 **Outcome:** Informational. The SSH setup must have happened in another
 session or tool, so it is missing from this log.
+
+## [2026-11-20 22:28]
+
+**Context:** Section 5, cell `hw2-21` (`score_adapter`): CUDA out-of-memory error while reloading the r=64 adapter.
+
+**Prompt/request:** Pasted the CUDA OOM traceback.
+
+**What Claude did:** Debugged the error. Cell `hw2-18` (the older Section 4 reload cell) left a float32 LoRA model in the global `model`. `score_adapter` loaded a second float32 copy before the old one was released, and two copies (~8 GB each) don't fit on the 20 GB GPU. Claude edited `score_adapter` to delete any existing global `model` and call `free_gpu()` before loading. Claude also suggested clearing the leaked memory without restarting the kernel.
+
+**How I checked it:** Not yet checked. Claude confirmed with `nvidia-smi` that the kernel held ~18.7 GB and found the error in cell `hw2-21`'s saved output.
+
+**Outcome:** Claude wrote the fix to `score_adapter`.
+
+## [2026-11-20 22:35]
+
+**Context:** Section 4, cell `hw2-18` (old adapter reload cell).
+
+**Prompt/request:** Asked Claude to delete one of the two duplicate adapter reload/score cells.
+
+**What Claude did:** Deleted `hw2-18`, which leaked the float32 model and caused the OOM. It kept `hw2-21` (`score_adapter`, top of Section 5), which frees the model after scoring.
+
+**How I checked it:** Not yet checked.
+
+**Outcome:** Accepted as-is.
+
+## [2026-11-20 23:18]
+
+**Context:** Section 5 → 6. Saving state for laptop use, reading the LoRA settings table, and a second CUDA OOM in cell `hw2-26`.
+
+**Prompt/request:** (1) Asked for cells that save the Section 6 results so Section 7 can run on a laptop. (2) Asked how to read the scores and choose the final model. (3) Pasted a second CUDA OOM error.
+
+**What Claude did:** (1) Wrote two cells to paste: one saves `test_seconds`, `METHODS`, the final choices and the results tables to `section6_state.json` and CSVs; the other reloads them at the start of Section 7. (2) Explained macro-F1 versus accuracy, per-class F1 and the cost columns in the Section 5 table. Pointed out that the final setting must be chosen on `selection` (Section 5), not on test. Noted that scaling mattered more than rank, and that the top three settings are within ~0.01 of each other, likely within noise. Recommended keeping r=64, α=32 under the "highest selection macro-F1" rule. (3) Debugged the OOM: `hw2-26` was interrupted during the LoRA test run and then re-run. The interrupted run's LoRA model was still in the global `model` when the re-run loaded the base model, so two float32 copies were on the GPU. Suggested freeing `model` at the top of `hw2-26`.
+
+**How I checked it:** I pasted both save/load cells into the notebook. Not yet run.
+
+**Outcome:** Pasted the save/load cells as written. The `hw2-26` fix is pending.
