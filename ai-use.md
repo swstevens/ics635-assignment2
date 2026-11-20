@@ -514,3 +514,187 @@ pointing to diminishing returns. Suggested how to phrase it.
 against my notebook.
 
 **Outcome:** Informational.
+
+## [2026-11-20]
+
+**Context:** Section 3 (Prompt the base model), before writing code.
+
+**Prompt/request:** Asked whether there's reference code for Section 3.
+
+**What Claude did:** Searched the course materials. Pointed to Ch3 (Module 4.0)
+cells 8, 26, 29, 73 (loading a Qwen model, `apply_chat_template`,
+`model.generate` with `do_sample=False`, timing) and Ch12 cells 120, 122–125
+(loading with `device_map="auto", dtype=torch.float32`, pad token, greedy
+generation). Noted none of them do batched generation, so the parts I need to
+add are left padding, tokenizing a batch, slicing off the prompt tokens before
+decoding, and looping over batches. Checked the Qwen3 tokenizer's pad token.
+
+**How I checked it:** Claude printed the tokenizer's pad token and padding side.
+
+**Outcome:** Informational.
+
+## [2026-11-20]
+
+**Context:** Section 3, porting Ch3 code.
+
+**Prompt/request:** Asked whether we use a different Qwen model than the reference.
+
+**What Claude did:** Confirmed: Ch3 uses Qwen2.5-0.5B-Instruct, the assignment
+uses Qwen3-1.7B. Explained what changes when porting (model name, float32
+loading, memory/speed, thinking mode turned off through `chat_prompt`, the
+empty `<think>` block in the prompt, what "base model" means in the assignment).
+
+**How I checked it:** Not yet checked.
+
+**Outcome:** Informational.
+
+## [2026-11-20]
+
+**Context:** Section 3, batched generation code (cell hw2-12).
+
+**Prompt/request:** Asked Claude to draft the generation function.
+
+**What Claude did:** Wrote (AI-written) the model loading code, a
+`generate(prompts, batch_size, max_new_tokens)` function (left padding, batched
+tokenization, greedy `model.generate`, slicing off prompt tokens,
+`batch_decode`), and a `run_prompt(template, tweets, batch_size)` helper that
+fills a `{tweet}` placeholder with `str.replace`, builds prompts with
+`chat_prompt`, times generation with `perf_counter` + `cuda.synchronize`, and
+parses labels. Ported from Ch3 cells 8/29/55. Shared in chat; did not edit the
+notebook.
+
+**How I checked it:** Claude ran it on the laptop GPU in float16 (float32
+doesn't fit in 6 GB) on 8 selection tweets: batched (size 4) outputs were
+identical to one-at-a-time outputs, confirming left padding works. Still need to
+run it in float32 on the GPU Gateway.
+
+**Outcome:** Pending.
+
+## [2026-11-20]
+
+**Context:** Section 3, designing prompts.
+
+**Prompt/request:** Asked what the zero-shot and few-shot prompts are supposed to do.
+
+**What Claude did:** Explained zero-shot (instruction only) vs few-shot
+(instruction plus labeled examples from `example_pool`), what the required
+prompt pairs test (order sensitivity, example choice), what's worth varying
+between prompts, and why the best zero-shot prompt matters for Section 4.
+Explained conceptually; no prompts written for me.
+
+**How I checked it:** Not yet checked (compare with ASSIGNMENT.pdf Section 3).
+
+**Outcome:** Informational.
+
+## [2026-11-20]
+
+**Context:** Section 3, scoring prompts (cell hw2-13).
+
+**Prompt/request:** Asked how to run a written prompt and score it.
+
+**What Claude did:** Wrote (AI-written) a loop over a dict of prompt templates:
+warm-up call, `run_prompt` on `selection`, `score` plus predicted-label counts
+and time, saving each prompt's predictions/raw outputs to CSV as it goes, and a
+combined results table; plus how to pick the best zero-/few-shot prompt by
+macro-F1. Shared in chat; did not edit the notebook.
+
+**How I checked it:** Not yet checked (needs the GPU Gateway).
+
+**Outcome:** Pending.
+
+## [2026-11-20]
+
+**Context:** Section 3, building few-shot prompts.
+
+**Prompt/request:** Asked how to build few-shot examples from `example_pool`.
+
+**What Claude did:** Wrote (AI-written) `sample_examples(per_label, seed, exclude)`
+(seeded, label-balanced sample from `example_pool`, shuffled so labels aren't
+grouped, with an option to exclude previously used tweets) and
+`few_shot_template(instruction, examples)` (Tweet/Answer format, collapses
+newlines in tweets, ends with a `{tweet}` placeholder). Showed how to build the
+required pairs: same set reversed (order pair) and a disjoint set of the same
+size (different-examples pair). Explained balanced vs proportional sampling.
+
+**How I checked it:** Claude ran the helpers on `example_pool` (no model):
+the two sets don't overlap, the reversed template flips the order, and each
+template has exactly one `{tweet}` placeholder.
+
+**Outcome:** Pending.
+
+## [2026-11-20]
+
+**Context:** Section 3 cells hw2-12 (generation) and hw2-13 (prompts/scoring).
+
+**Prompt/request:** Asked Claude to clean up the syntax in my active cell.
+
+**What Claude did:** Edited the notebook directly (AI-edited): in hw2-13, renamed
+`prompts` → `PROMPTS` (the loop used `PROMPTS`), un-nested the run/score loop
+from the print loop (it re-ran everything per prompt and reset `rows`), renamed
+my two prompts from `few_shot_*` to `zero_*` (they have no examples, and the
+`few_` prefix gave them batch size 4 and the wrong category), and fixed the
+"netural" typo in prompt 2. In hw2-12, moved decoding out of the `no_grad`
+block, fixed indentation, and added `model.eval()`. Cleared stale outputs.
+Explained the `NameError: generate` came from hw2-12 being interrupted during
+model loading. Backup saved in the scratchpad before editing.
+
+**How I checked it:** Claude validated the notebook schema and compiled both
+cells; not yet run on the GPU.
+
+**Outcome:** Pending (rerun hw2-12, then hw2-13).
+
+## [2026-11-20]
+
+**Context:** Section 3, running generation.
+
+**Prompt/request:** Asked how long generation should take.
+
+**What Claude did:** Checked the running kernel: it was on my laptop with the
+model on the CPU (GPU memory unused, ~7.8 GB RAM, 2 GB free), which would make
+generation very slow. Gave rough estimates for the GPU Gateway (zero-shot on 600
+tweets ≈ under a minute to a few minutes; 12-shot several times longer) and
+recommended stopping the laptop run and using the Gateway.
+
+**How I checked it:** Claude read `nvidia-smi`, `free`, and the kernel process
+stats. The Gateway estimates are rough and not yet checked.
+
+**Outcome:** Informational.
+
+## [2026-11-20]
+
+**Context:** Section 3, running generation locally for drafting.
+
+**Prompt/request:** Asked how to run on my local GPU to get draft results to
+write from before moving to the GPU Gateway.
+
+**What Claude did:** Suggested (AI-written) a switch in the model-loading cell:
+float16 when the GPU has less than ~9 GB (laptop RTX 2060, 6 GB), float32
+otherwise (Gateway), with a printed warning. Explained that draft numbers will
+differ from float32 results, so all reported numbers and prompt choices must be
+rerun on the Gateway; noted the kernel must be restarted to free RAM, and that
+bf16 LoRA training won't work on the laptop's Turing GPU.
+
+**How I checked it:** Earlier float16 test on the laptop GPU (8 tweets) worked;
+this switch is not yet run.
+
+**Outcome:** Pending.
+
+## [2026-11-20]
+
+**Context:** Compute planning for local drafting.
+
+**Prompt/request:** Asked whether my RTX 3070 (Windows desktop) would work, and
+whether I'd need a VM.
+
+**What Claude did:** Checked the cached model size (3.9 GB in bf16, so about
+7.8 GB in float32) and the pinned environment (torch 2.15 from PyPI). Explained
+that the 3070's 8 GB can't hold the float32 model, so it can't do the required
+float32 runs, but it works well for float16/bf16 drafting and supports bf16.
+Recommended WSL2 over a VM (ordinary VMs don't get GPU access; WSL2 does) and
+over native Windows (PyPI torch on Windows is CPU-only, which would break
+`uv sync --locked`). Corrected my earlier "~7 GB" float32 estimate to ~7.8 GB.
+
+**How I checked it:** Claude measured the safetensors size and read
+`pyproject.toml`/`uv.lock`. The WSL2 setup is not yet tested.
+
+**Outcome:** Informational.
