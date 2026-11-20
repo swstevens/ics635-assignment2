@@ -1,0 +1,39 @@
+{
+    "name": "ics635-hw2",
+    "image": "mcr.microsoft.com/devcontainers/python:3.13",
+
+    // Podman: GPU via CDI, keep file ownership sane on the bind mount, room for torch shared memory.
+    "runArgs": [
+        "--device", "nvidia.com/gpu=all",
+        "--userns=keep-id",
+        "--shm-size=4g"
+    ],
+    "containerUser": "vscode",
+    "updateRemoteUserUID": false,
+
+    // Keep the Linux venv and the caches in named volumes (fast, survive rebuilds,
+    // and don't clash with a .venv created on another OS).
+    "mounts": [
+        "source=ics635-hw2-venv,target=${containerWorkspaceFolder}/.venv,type=volume",
+        "source=hf-cache,target=/home/vscode/.cache/huggingface,type=volume",
+        "source=uv-cache,target=/home/vscode/.cache/uv,type=volume"
+    ],
+    "containerEnv": {
+        "UV_LINK_MODE": "copy"
+    },
+
+    "postCreateCommand": "sudo chown vscode:vscode .venv /home/vscode/.cache/huggingface /home/vscode/.cache/uv && pipx install uv && uv sync --locked",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-toolsai.jupyter"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    }
+}

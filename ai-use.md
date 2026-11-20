@@ -698,3 +698,156 @@ over native Windows (PyPI torch on Windows is CPU-only, which would break
 `pyproject.toml`/`uv.lock`. The WSL2 setup is not yet tested.
 
 **Outcome:** Informational.
+
+## [2026-11-20 21:25]
+
+**Context:** Loading Qwen/Qwen3-1.7B in `hw2.ipynb` under WSL2 on the RTX 3070.
+
+**Prompt/request:** Asked whether the Qwen model was installed, whether running
+the cell downloads it, and to double-check the GPU is being used.
+
+**What Claude did:** Inspected the Hugging Face cache and explained that
+`from_pretrained` downloads the weights from the Hub on first run. (Claude first
+said the weights were missing; it had checked the snapshot folder mid-download.
+The full ~3.9 GB was cached by 21:20.) Verified the GPU: `nvidia-smi` shows the
+RTX 3070, and torch 2.15+cu132 reports `cuda.is_available() == True`. The
+running kernel is using ~7.97/8.19 GB VRAM at 100% util. Warned that the
+float32 load (~7.8 GB) with `device_map="auto"` likely offloads some layers to
+CPU, and suggested checking `model.hf_device_map`.
+
+**How I checked it:** Claude ran `nvidia-smi`, checked torch from the project
+venv, and checked the cache sizes. The device map check in the notebook has not
+been run yet.
+
+**Outcome:** Informational; no code changes.
+
+## [2026-11-20 21:30]
+
+**Context:** Prompt-comparison cell (cell 19) in `hw2.ipynb`.
+
+**Prompt/request:** Asked what the `selection_*.csv` files are.
+
+**What Claude did:** Explained that cell 19 writes one checkpoint CSV per
+prompt template in `PROMPTS` (columns text/gold/pred/raw over the 600
+selection tweets), so a kernel crash doesn't lose finished runs. Summarized
+the two files so far: zero_1 accuracy 0.622, zero_2 accuracy 0.525, with 73%
+prediction agreement. zero_2 over-predicts "positive" (339/600).
+
+**How I checked it:** Claude read the notebook source and loaded both CSVs
+with pandas. The macro-F1 figures come from the notebook's own output table.
+
+**Outcome:** Informational.
+
+## [2026-11-20 21:35]
+
+**Context:** Section 4 (Fine-tune with LoRA), cell 22, the training dataset.
+
+**Prompt/request:** Asked how fine-tuning with the best zero-shot prompt works,
+given `lora_train` already exists.
+
+**What Claude did:** Explained the training-example format: `chat_prompt(best
+zero-shot prompt filled with the tweet)` + label + `<|im_end|>\n`. Checked the
+Qwen chat template ending (`<think>\n\n</think>\n\n`) and that the pad token
+(`<|endoftext|>`) differs from `<|im_end|>`. Explained that SFTTrainer with
+`dataset_text_field="text"` uses next-token loss over the whole sequence, what
+LoRA freezes and trains, and right padding for training versus left for
+generation. Suggested a draft of the dataset-building code for cell 22. Flagged
+that the running cell 19 skipped `zero_3` (the kernel's `PROMPTS` predates
+adding it), so the best zero-shot choice should wait until zero_3 runs. Noted
+that float32 training (~9.3 GB) won't fit on the 8 GB 3070.
+
+**How I checked it:** Claude printed the actual chat-template string and the
+tokenizer's special tokens. The fixed settings come from ASSIGNMENT.pdf. The
+draft code has not been run yet.
+
+**Outcome:** Pending.
+
+## [2026-11-20 21:45]
+
+**Context:** Section 4, cells 22–24 (training dataset, LoRA training, save/reload/score).
+
+**Prompt/request:** Write the full Section 4 pipeline locally, even though
+float32 training won't fit on the 3070.
+
+**What Claude did:** Wrote code (Claude-authored) for cells 22–24. It includes
+a `train_lora(r, lora_alpha, ...)` function that Section 5 can reuse. It
+measures time and peak memory, saves the adapter, and reports its size, and
+the loss is plotted from `log_history`. Reload uses `AutoPeftModelForCausalLM`.
+Found in the installed TRL 1.9.2 source (`sft_trainer.py` `add_eos`) that
+SFTTrainer appends `<|im_end|>` to any `text` that doesn't already end with it.
+Our examples end with `<|im_end|>\n`, so it would add a second `<|im_end|>`.
+Claude pre-tokenized the dataset (`input_ids` column), which makes TRL skip that
+step, and decoded the example to confirm the ending. Added a `DEV_RUN` flag
+(bf16 load, 64 examples) for smoke-testing on the 8 GB card. Noted that TRL
+1.9's SFTConfig enables gradient checkpointing by default.
+
+**How I checked it:** Claude checked the SFTConfig/SFTTrainer signatures and
+the dataset-prep source in the installed versions (trl 1.9.2, peft 0.20.0,
+transformers 5.14.1). The code has not been run yet (cell 19 still running).
+
+**Outcome:** Pending.
+
+## [2026-11-20 21:55]
+
+**Context:** Section 5 (Compare LoRA settings), cells 27–28, plus a revised cell 24.
+
+**Prompt/request:** Write the Section 5 comparison too, so the whole notebook
+can run unattended.
+
+**What Claude did:** Wrote code (Claude-authored). A `score_adapter` helper
+(in cell 24) reloads a saved adapter with `AutoPeftModelForCausalLM`, scores
+it on selection, saves the outputs, and frees GPU memory. Cell 27 loops over
+the four remaining (r, lora_alpha) settings using `train_lora`, saving
+`lora_runs.csv` after each run. Cell 28 shows the five-run table and plots
+macro-F1 against rank (log axis) with the two required lines, plus the loss
+curves. Advised stopping before Section 6 to fill in the checklist, choosing
+the zero-shot prompt by macro-F1 rather than hard-coding it, and setting
+`DEV_RUN=False`.
+
+**How I checked it:** Checked against the assignment's Section 5 table and
+deliverables. The code has not been run yet.
+
+**Outcome:** Pending.
+
+## [2026-11-20 22:05]
+
+**Context:** Section 6 (Evaluate once on the test set), cells 33–34.
+
+**Prompt/request:** Continue writing the code that evaluates on the test set.
+
+**What Claude did:** Wrote code for cells 33–34 (Claude-authored). Cell 33
+records the final choices at the top: `few_A` as the best few-shot prompt,
+because it has the best selection macro-F1 (0.732). The LoRA setting is a
+placeholder (r=64, alpha=32) until Section 5 runs. The cell asserts that the
+adapter exists and that `DEV_RUN` is off. It predicts `test` with all six
+methods (always-neutral, both Section 2 TF-IDF pipelines without refitting,
+best zero-shot, best few-shot, and the LoRA model reloaded from its adapter
+with the zero-shot prompt) and times each one. It warms up the GPU before
+timing and rewrites `test_predictions.csv` after each method. Cell 34 reloads
+the CSV (with `keep_default_na=False`) and computes the comparison table with
+seconds per 1,000 tweets. It also draws the two test confusion matrices with
+the existing `plot_confusion`. Claude computed the selection macro-F1 for each
+prompt from the saved `selection_*.csv` files to back the few-shot choice.
+
+**How I checked it:** Claude syntax-checked both cells. They have not been run
+yet, because the adapters don't exist until Sections 4–5 run.
+
+**Outcome:** Pending.
+
+## [2026-11-20 22:10]
+
+**Context:** Section 7 (failure analysis) and remote-run setup.
+
+**Prompt/request:** Asked whether Section 7 analysis can proceed normally after
+the test run, and where the SSH setup for running on another machine was.
+
+**What Claude did:** Explained that Section 7 may read `test` errors and define
+slices by tweet features, as long as nothing feeds back into prompts or
+models. Searched for the SSH setup and found no record of it in this repo,
+`ai-use.md`, or Claude memory. The only SSH state is a `known_hosts` entry.
+
+**How I checked it:** Claude searched the repo files, `~/.ssh`, and
+`.devcontainer/devcontainer.json`.
+
+**Outcome:** Informational. The SSH setup must have happened in another
+session or tool, so it is missing from this log.
