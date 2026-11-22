@@ -887,3 +887,63 @@ session or tool, so it is missing from this log.
 **How I checked it:** I pasted both save/load cells into the notebook. Not yet run.
 
 **Outcome:** Pasted the save/load cells as written. The `hw2-26` fix is pending.
+
+## [2026-11-22]
+
+**Context:** Write-up pass after the GPU runs; reviewing my Section 1 and 2 analysis drafts.
+
+**Prompt/request:** Asked to go back through the code and write up the analysis
+responses together so I understand the content.
+
+**What Claude did:** Surveyed the notebook (Sections 1–6 run; Section 7 code not
+yet run; analysis cells for 3–7 and the pre-test checklist still TODO).
+Reviewed my Section 1 and 2 drafts: noted my label definition describes tone
+rather than outlook (the assignment's key distinction), the missing macro-F1
+paragraph, leftover TODO lines, typos, and that Section 2 should state the
+vectorizer settings. Gave feedback only; did not rewrite my text.
+
+**How I checked it:** Not yet checked.
+
+**Outcome:** Pending (I'll revise my drafts).
+
+## [2026-11-22]
+
+**Context:** Section 3 analysis (interpreting the prompt results table).
+
+**Prompt/request:** Shared my expectations (zero_1 best because it's neutral and
+declarative; few-shot order changes probably wouldn't matter much) and asked to
+work through the results.
+
+**What Claude did:** Read my prompt results and selection CSVs and walked
+through what they show: all zero-shot prompts under-predict neutral (202/132/29
+vs 368 true) and over-predict positive; the order pair moved macro-F1 by 0.07,
+with the reversed order (ending on two positive examples) predicting positive
+249 vs 132 times, consistent with recency bias; the different-examples pair
+differed by 0.10; few-shot fixed most of the neutral problem; unparsed few-shot
+outputs were synonyms like "favorable"/"weakness"; few-shot cost ~3.5× the time.
+Compared with the TF-IDF baselines. Left the write-up to me.
+
+**How I checked it:** Claude computed the unparsed breakdown from
+`selection_few_*.csv`; other numbers are from my notebook output.
+
+**Outcome:** Pending (I'll write the Section 3 analysis).
+
+## [2026-11-22]
+
+**Context:** Section 3 analysis cell (hw2-14), my draft.
+
+**Prompt/request:** Asked for a sanity check on my answer to "which two prompts
+you chose and why".
+
+**What Claude did:** Reviewed my draft. Confirmed zero_1 and few_A are the
+correct picks (highest selection macro-F1 in each group), and pointed out the
+answer states the choice but not the reason: say they were chosen on selection
+macro-F1 (with numbers), not on accuracy or test, and that zero_1 is then the
+Section 4 training prompt. Also flagged in the rest of the cell: a leftover TODO
+line, the "netural" typo, "trained prediction results" (the base model is
+untrained here), and an unsupported sentence about the label being next to the
+tweet. Also noted a stale TODO comment in cell hw2-16.
+
+**How I checked it:** Compared my draft against `prompt_results.csv`.
+
+**Outcome:** Pending (I'll revise my answer).
