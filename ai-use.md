@@ -947,3 +947,122 @@ tweet. Also noted a stale TODO comment in cell hw2-16.
 **How I checked it:** Compared my draft against `prompt_results.csv`.
 
 **Outcome:** Pending (I'll revise my answer).
+
+## [2026-11-22]
+
+**Context:** Section 4 analysis (LoRA fine-tuning), before I write it.
+
+**Prompt/request:** Moved on to Section 4 and asked to work through it.
+
+**What Claude did:** Read my Section 4 code and outputs and the loss plot, and
+explained the three analysis questions using my numbers. (1) What's trained:
+low-rank A/B matrices on the 7 projection modules in all 28 layers; base
+weights, embeddings, norms and LM head frozen. Verified 69,730,304 trainable
+params by hand from Qwen3-1.7B's layer shapes (r × (in + out) per module).
+(2) Why the adapter is small: 69.7M params × 4 bytes = 279 MB vs ~6.9 GB for
+the frozen weights. (3) Loss curve: fast drop 5.18 → ~1.5 in ~25 steps, then
+flat around 1.3–1.5. Checked TRL's source: with a plain "text" dataset the
+loss covers every token (prompt + tweet + label), not just the label, so the
+plateau mostly reflects unpredictable tweet text. Selection scores (0.848 vs
+0.627 for the same prompt untrained) are the evidence the label was learned.
+
+**How I checked it:** Hand calculation matches the notebook's trainable count
+exactly; adapter size matches params × 4 bytes; TRL behaviour read from
+`trl/trainer/sft_trainer.py` in the repo `.venv`.
+
+**Outcome:** Pending (I'll write the Section 4 analysis).
+
+## [2026-11-22]
+
+**Context:** Section 4 analysis (model size / trainable percentage).
+
+**Prompt/request:** Asked whether "module" is the right term, and how many
+parameters Qwen3-1.7B has.
+
+**What Claude did:** Explained "module" (PyTorch `nn.Module`; PEFT's
+`target_modules`) and alternatives ("linear layer", "projection", "weight
+matrix"). Counted Qwen3-1.7B's parameters from its config on the meta device:
+1,720,574,976 unique (311,164,928 embedding, tied with the output layer;
+1,409,410,048 non-embedding). Showed that this plus 69,730,304 LoRA params
+reproduces the notebook's 3.895%, and explained why the assignment's "about 2
+billion" counts the tied output layer twice.
+
+**How I checked it:** Claude computed the count from the model config; it
+reproduces the notebook's trainable percentage.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 4 analysis (why the adapter is small; what LoRA trains).
+
+**Prompt/request:** Asked for a table comparing the full Qwen3 weight matrices
+with LoRA's A and B matrices, and why LoRA uses two matrices.
+
+**What Claude did:** Read the weight shapes from Qwen3-1.7B's config (meta
+device) and built a per-module table at r=64: full W size vs A (r × in) and
+B (out × r), with ratios (10.7×–24× per module, 20.2× per layer; 1.41B frozen
+vs 69.7M trainable across 28 layers). Explained the low-rank factorization
+(A compresses to r numbers, B expands back; B·A has the same shape as W but rank
+≤ r), why one r-sized matrix can't do this, and the zero-initialized B.
+
+**How I checked it:** Shapes and counts computed from the model config; totals
+match the notebook's trainable count.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 4 analysis (interpreting the loss curve).
+
+**Prompt/request:** Asked whether the loss plateau and the lack of an overfitting
+check are a result of how training was set up.
+
+**What Claude did:** Explained yes, both follow from the configuration the
+assignment fixes: (1) a plain `"text"` dataset (`dataset_text_field="text"`)
+makes TRL compute loss on every token (prompt + tweet + label); a
+prompt/completion dataset would compute loss on the label only; (2) the
+SFTConfig has no `eval_dataset`/evaluation strategy, so only training loss is
+logged. Explained what changing each would show and why to keep the fixed
+settings and note it as a limitation. Checked the Ch12 notebook uses the same
+text-field setup.
+
+**How I checked it:** TRL source (`sft_trainer.py`) and grep of the Ch12 notebook.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 4 → 5/6 (loss setup).
+
+**Prompt/request:** Asked whether Sections 5 and 6 "fix" the all-token loss and
+missing held-out loss.
+
+**What Claude did:** Corrected the misunderstanding: nothing is broken and no
+later section changes it. Section 5 keeps every training setting fixed except
+r/lora_alpha (same all-token loss); Section 6 scores on test after training,
+which is held-out evaluation of predictions, not a held-out loss curve during
+training. Explained that selection/test scores are the intended evidence.
+
+**How I checked it:** Against ASSIGNMENT.pdf Sections 5–6.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 4 analysis cell (hw2-19), my draft.
+
+**Prompt/request:** Asked for a review of my Section 4 analysis.
+
+**What Claude did:** Reviewed my draft. Flagged factual errors: LoRA here
+targets the 7 projection modules, not the LM head (which stays frozen, as my
+next sentence says); A compresses the layer's input vector, not "the incoming
+weights"; "learning rate drastically decreases" should be the loss; "epochs"
+should be optimizer steps (one epoch = 375 steps). Suggested adding the
+adapter's on-disk size (279 MB vs ~6.9 GB) to answer "why is the adapter
+smaller", and the plateau explanation plus the 0.627 → 0.848 selection
+evidence to the loss paragraph. Listed typos. Did not rewrite my text.
+
+**How I checked it:** Compared against my notebook outputs and the PEFT config.
+
+**Outcome:** Pending (I'll revise).
