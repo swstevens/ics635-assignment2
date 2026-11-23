@@ -1214,3 +1214,46 @@ single dice roll) and a concrete anchor (0.01 accuracy = 6 of 600 tweets).
 **How I checked it:** Arithmetic on the selection set size.
 
 **Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 6 analysis (test results), before I write it.
+
+**Prompt/request:** Moved on to Section 6 and asked to work through it.
+
+**What Claude did:** Read `test_results.csv` and recomputed both confusion
+matrices from `test_predictions.csv`. Walked through the three analysis
+questions: (1) selection vs test (every method within ~0.01–0.04; the chosen
+prompts dropped most, ~0.035, consistent with picking the best of several on
+selection; identical method ranking on both sets; test is 3× larger so less
+noisy); (2) confusion-matrix changes from zero-shot to LoRA (neutral tweets
+misread as positive/negative fell from 618 to 82; neg↔pos flips 25 → 10;
+polar tweets missed as neutral rose from 80 to 119; negative precision 49% →
+82%); (3) ranking with gaps and prediction cost per 1,000 tweets.
+
+**How I checked it:** Confusion matrices recomputed with sklearn from the CSV;
+other numbers from my saved results.
+
+**Outcome:** Pending (I'll write the Section 6 analysis).
+
+## [2026-11-22]
+
+**Context:** Section 6 analysis cell (hw2-28), my draft.
+
+**Prompt/request:** Asked for a review of my Section 6 analysis.
+
+**What Claude did:** Reviewed my draft against `test_results.csv` and the
+recomputed confusion matrices. Flagged: "decreased accuracy after the full
+training" (it's macro-F1, selection vs test, no extra training); "larger
+dataset" reasoning (test set is simply 3× larger than selection); neutral
+errors after LoRA are 82, not 92; the +26/+13 polar→neutral increases are for
+negative/positive, not positive/neutral; "negative recall 284→279" is actually
+positive correct counts (negative is 199→182); +0.19 is vs TF-IDF on 3,000
+tweets, not the untrained model (+0.251 vs zero-shot); TF-IDF isn't
+"untrained"; the final sentence about TF-IDF loss curves is incorrect (TF-IDF
+has no loss curve here); times need "per 1,000 tweets"; missing why the chosen
+prompts dropped most and that the ranking is unchanged. Did not rewrite my text.
+
+**How I checked it:** Numbers checked against my result files.
+
+**Outcome:** Pending (I'll revise).
