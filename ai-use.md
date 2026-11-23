@@ -1066,3 +1066,151 @@ evidence to the loss paragraph. Listed typos. Did not rewrite my text.
 **How I checked it:** Compared against my notebook outputs and the PEFT config.
 
 **Outcome:** Pending (I'll revise).
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis (LoRA settings), before I write it.
+
+**Prompt/request:** Moved on to Section 5 and asked to work through it.
+
+**What Claude did:** Read `lora_runs.csv`, the rank plot and loss curves, and
+`section6_state.json`. Walked through the four analysis questions with my
+numbers: separating rank from scaling (at scaling 0.5, r 4→64 gave
+0.805→0.848; at lora_alpha=32 the line is nearly flat, 0.838→0.848; at r=4,
+scaling 8 vs 0.5 gave +0.033), linking this to the slower loss drop of the
+low-scaling runs; cost (params/adapter size scale with r, 4.4M–69.7M,
+17.5–279 MB; train time ~flat at ~610 s; peak memory 12.9–16.4 GB; alpha
+changes no cost). Pointed out that Section 6 already used r=64/alpha=32, so
+the stated rule must be "highest selection macro-F1", with r=4/alpha=32 as
+the within-noise smaller alternative to discuss but not switch to after
+seeing test. Explained single-seed and 600-tweet limits. Flagged plot tick
+clutter and a stale TODO comment.
+
+**How I checked it:** Numbers from `lora_runs.csv` and the saved plot; final
+choice from `section6_state.json`.
+
+**Outcome:** Pending (I'll write the Section 5 analysis).
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis (reading the loss curves and rank plot).
+
+**Prompt/request:** Asked whether lora_alpha=32 "optimizes the loss" and r=64
+"optimizes selection", and whether the meeting point at r=64 implies
+diminishing returns.
+
+**What Claude did:** Partly confirmed and corrected. Confirmed the three
+lora_alpha=32 runs share the same loss curve, and **corrected Claude's own
+earlier explanation**: training speed tracks lora_alpha itself, not the scaling
+α/r (r=64 at scaling 0.5 trains as fast as r=4 at scaling 8). Explained why
+with Adam (per-parameter steps of roughly constant size, so B·A grows with r
+and the α/r factor cancels it, leaving α). Explained that the lines meet at r=64
+by construction (same run), not as a finding; that r=64's selection lead over
+r=16/r=4 at α=32 (0.003/0.010) is within noise; and that the fixed-α line is
+consistent with flat or diminishing returns from rank, but this can't be
+confirmed from these data.
+
+**How I checked it:** Compared final losses and selection scores in
+`lora_runs.csv` by α.
+
+**Outcome:** Informational; earlier "scaling" framing replaced with "α".
+
+## [2026-11-22]
+
+**Context:** Section 5 (LoRA hyperparameters).
+
+**Prompt/request:** Asked what r and α (lora_alpha) actually are.
+
+**What Claude did:** Defined each LoRA variable with my numbers: W (frozen
+weight), A and B (trained matrices), r (rank: the bottleneck width / number of
+directions the update can use, which sets parameter count and adapter size),
+lora_alpha (a fixed multiplier on the update's strength, not trained, no cost),
+scaling α/r, and lora_dropout. Related them to the LoraConfig in my notebook.
+
+**How I checked it:** Against the PEFT LoraConfig printed in my notebook.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis (rank vs scaling).
+
+**Prompt/request:** Asked how to describe what rank and scaling each do.
+
+**What Claude did:** Summarized rank's and scaling's effects on score and cost
+as a 2×2 framing with my numbers (rank: little score effect at fixed α,
+linear cost; scaling/α: most of the score differences via training speed in
+one epoch, zero cost), with suggested sentences for the write-up.
+
+**How I checked it:** Numbers from `lora_runs.csv`.
+
+**Outcome:** Pending (I'll write it in my own words).
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis (single seed / 600-tweet limits).
+
+**Prompt/request:** Asked whether the conclusion is that, with this small
+dataset, we can't pin down the best setting.
+
+**What Claude did:** Confirmed with refinements: separated the two sources of
+uncertainty (evaluation noise from the 600-tweet selection set, not the
+training data; and training variance from a single seed), stated what the data
+do support (r4_a2 genuinely worse, backed by both its score gap and its loss
+curve; every LoRA run far above prompting and TF-IDF) and what they don't
+(ranking among the top four runs, 0.833–0.848), and what would resolve it
+(several seeds per setting, a larger evaluation set, bootstrap intervals).
+
+**How I checked it:** Gaps compared with the earlier bootstrap noise estimate.
+
+**Outcome:** Pending (I'll write it in my own words).
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis cell (hw2-23), my draft.
+
+**Prompt/request:** Asked for a review of my Section 5 analysis.
+
+**What Claude did:** Reviewed my draft. Flagged: r and α swapped in the opening
+definition; a claim that higher rank costs more compute time (my data show
+training time flat at ~610 s; the cost is parameters, size and memory); "32 is
+the best scaling" (32 is α; scaling is α/r); "highest learning rate" (the
+learning rate was fixed); missing the cost of scaling (none); the single-seed /
+600-tweet limits only touched in one clause; a duplicated paragraph; the
+choice rule should name selection macro-F1; typos. Did not rewrite my text.
+
+**How I checked it:** Compared against `lora_runs.csv`.
+
+**Outcome:** Pending (I'll revise).
+
+## [2026-11-22]
+
+**Context:** Checklist before Section 6 (final choices table).
+
+**Prompt/request:** Asked Claude to pull the final configuration details and
+selection scores from the notebook for the checklist table.
+
+**What Claude did:** Read the TF-IDF code (cell hw2-09), `baseline_results.csv`,
+`prompt_results.csv`, `lora_runs.csv` and `section6_state.json`, and produced a
+pastable Markdown checklist table with each final configuration and its
+selection macro-F1.
+
+**How I checked it:** Values copied from the saved result files.
+
+**Outcome:** Pending (I'll paste it into the checklist cell).
+
+## [2026-11-22]
+
+**Context:** Section 5 analysis (score vs cost; limits).
+
+**Prompt/request:** Confused about the "score and cost" comment and still
+didn't understand the single-seed / 600-tweet limits.
+
+**What Claude did:** Clarified that the question asks for both knobs' effect on
+both score and cost, and that the only missing piece in my draft was scaling's
+cost (none). Re-explained the limits with plain analogies (a short quiz and a
+single dice roll) and a concrete anchor (0.01 accuracy = 6 of 600 tweets).
+
+**How I checked it:** Arithmetic on the selection set size.
+
+**Outcome:** Informational.
