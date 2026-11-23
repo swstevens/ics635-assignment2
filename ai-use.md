@@ -1519,3 +1519,42 @@ the source was unchanged, and the restored output reads "Train time 1: 2.72
 seconds / Train time 2: 5.94 seconds" with the original table.
 
 **Outcome:** Applied; I need to Revert in VS Code to load it.
+
+## [2026-11-23]
+
+**Context:** Submission: README.md, Section 1 analysis, citations.
+
+**Prompt/request:** Told Claude I used the 20 GB GPU and asked for a README
+draft; asked what was still wrong in Section 1; asked to add citations.
+
+**What Claude did:** Wrote README.md (AI-written): hardware (20 GB GPU Gateway
+system for the final run, laptop CPU for Sections 1/2/7), measured peak memory,
+setup with `uv sync --locked`, run order and approximate per-section times
+from my measured timings, files written by the notebook, how to rerun
+Section 7 without a GPU, and data/model sources. Explained the two Section 1
+gaps (label defined by tone instead of outlook; missing macro-F1 paragraph).
+Drafted per-cell citation lines for me to paste (course Ch3/Ch6/Ch12
+notebooks, my HW1 code, scikit-learn, PEFT/TRL docs, the LoRA paper, the
+dataset and model pages).
+
+**How I checked it:** Times computed from my Section 3–6 measurements; file
+paths checked in the course materials folder. README not yet reviewed by me.
+
+**Outcome:** Pending.
+
+## [2026-11-23]
+
+**Context:** Submission packaging.
+
+**Prompt/request:** Asked Claude to commit and build the submission zip.
+
+**What Claude did:** Checked the saved notebook (valid; no error outputs; no
+TODO lines; citations present; Section 1 now covers outlook and macro-F1),
+committed, and built `stevens_shea_hw2.zip` with the six files listed in
+ASSIGNMENT.pdf (no adapters, weights or .venv). Pointed out the "Pending"
+outcomes still in this log.
+
+**How I checked it:** Listed the archive contents and validated the notebook
+inside it.
+
+**Outcome:** Applied.
