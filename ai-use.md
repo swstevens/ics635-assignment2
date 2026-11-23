@@ -1257,3 +1257,94 @@ prompts dropped most and that the ranking is unchanged. Did not rewrite my text.
 **How I checked it:** Numbers checked against my result files.
 
 **Outcome:** Pending (I'll revise).
+
+## [2026-11-22]
+
+**Context:** Setting up Section 7 without disturbing Section 1–6 outputs.
+
+**Prompt/request:** After accidentally rerunning a cell (and fixing it myself),
+asked which cells to run to set up Section 7. Claude had also committed the
+notebook as saved at 18:20.
+
+**What Claude did:** Verified the saved result files (`section6_state.json`,
+`test_results.csv`, `test_predictions.csv` and the other CSVs) are unchanged
+since the GPU-run commit 2034538 (11-20), so the test timings are intact.
+Listed the minimal cells to run for Section 7 (the three Setup cells, then the
+Section 7 resume cell) and the cells not to run (the save-state cell, which
+would overwrite the saved timings, plus any Section 3–6 generation/training
+cells).
+
+**How I checked it:** `git diff` of the result files against commit 2034538.
+
+**Outcome:** Pending.
+
+## [2026-11-22]
+
+**Context:** Section 7 (failure analysis), planning before writing code.
+
+**Prompt/request:** Asked to discuss Section 7.
+
+**What Claude did:** Explained the three parts (slices, tweets every method
+got wrong, recommendation). Ran a scratch preview on `test_predictions.csv`
+(not in the notebook) of five candidate slices ($ticker, link, cut off,
+≤ 8 words, has a number), with n, class counts, macro-F1 for methods 3/4/6,
+and a bootstrap 95% interval (500 resamples, seed 635) for LoRA's lead over
+TF-IDF-9,543 in each slice and its complement; and the all-wrong count for
+methods 2–6 (45 tweets). Summarized where LoRA's lead grows/shrinks and which
+differences the intervals can't separate.
+
+**How I checked it:** Scratch computation from the saved CSV; to be reproduced
+in my notebook cells.
+
+**Outcome:** Pending.
+
+## [2026-11-22]
+
+**Context:** Section 7 code (cells hw2-30, hw2-31, and a new marks cell).
+
+**Prompt/request:** Asked Claude to draft the Section 7 code.
+
+**What Claude did:** Drafted (AI-written), in chat for me to paste: (1) a slice
+table for four yes/no slices ($ticker, link, cut off, ≤ 8 words): n and class
+counts, macro-F1 for methods 3/4/6 in each slice and the rest, LoRA's lead over
+methods 3 and 4, and a 95% bootstrap interval (1,000 resamples, seed 635) for
+the lead over method 3; (2) the tweets methods 2–6 all got wrong (45), a
+seed-635 sample of 15 with every method's prediction, and a printed template
+for my marks; (3) a marks cell that validates my marks and counts them. The
+mislabeled/ambiguous/hard marks and reasons are left for me to write.
+
+**How I checked it:** Claude ran all three cells in a scratch script against
+`test_predictions.csv` (slice cell ~55 s); outputs matched the earlier preview.
+
+**Outcome:** Pending (I'll paste, run, and write my own marks).
+
+## [2026-11-22]
+
+**Context:** Section 7 marks cell.
+
+**Prompt/request:** Asked whether each tweet gets just one of the three marks.
+
+**What Claude did:** Confirmed one mark per tweet plus a one-line reason, and
+gave a decision order for choosing between mislabeled, ambiguous and hard.
+Did not mark any tweets.
+
+**How I checked it:** Against ASSIGNMENT.pdf Section 7 wording.
+
+**Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 7, purpose of the all-wrong marks.
+
+**Prompt/request:** Asked what the marks are for, and whether they're just
+subjective.
+
+**What Claude did:** Explained the purpose (finding out what the remaining
+errors say about the labels and the task, and feeding that into the
+recommendation), that subjectivity is expected and is itself a finding, how to
+keep marks consistent (one stated rule), and how each mark count would be
+interpreted in the analysis and recommendation.
+
+**How I checked it:** Against ASSIGNMENT.pdf Section 7.
+
+**Outcome:** Informational.
