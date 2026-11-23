@@ -1348,3 +1348,174 @@ interpreted in the analysis and recommendation.
 **How I checked it:** Against ASSIGNMENT.pdf Section 7.
 
 **Outcome:** Informational.
+
+## [2026-11-22]
+
+**Context:** Section 7 marks cell (my 15 marks).
+
+**Prompt/request:** Asked for a check of my marks.
+
+**What Claude did:** Checked each mark's reason against the mark definitions and
+the gold label (did not change any marks). Flagged where a reason and mark
+disagree: 861, 1167 and 1063 are marked ambiguous but the reasons argue for the
+gold label (fits "hard"); 910's reason concludes "neutral" against gold
+negative (fits "mislabeled", or "hard" if I accept negative); 1483 is marked
+hard but the reason describes mixed signals (fits "ambiguous"); 203's reasoning
+("margins suffering is neutral") is weak under the outlook rule. Noted the cell
+hasn't been run yet and two typos.
+
+**How I checked it:** Compared each reason with the gold label from `test_predictions.csv`.
+
+**Outcome:** Pending (marks are my decision).
+
+## [2026-11-23]
+
+**Context:** Section 7 analysis and recommendation, before I write them.
+
+**Prompt/request:** After running the marks cell, asked what the Section 7
+analysis is supposed to cover.
+
+**What Claude did:** Explained the analysis cell's two questions and the
+recommendation using my outputs: slice leads (LoRA's lead over TF-IDF-9,543
+shrinks on $ticker tweets, 0.096 vs 0.122, and grows on links, cut-off and
+short tweets, but every slice/rest interval pair overlaps, so none of the
+differences are trustworthy; small minority-class counts in the ticker and
+cut-off slices); all-wrong tweets (45 of 1,788; my marks: 10 hard, 3
+ambiguous, 2 mislabeled) and what that says about the labels. Noted my 910 and
+1483 reasons still don't match their marks.
+
+**How I checked it:** Numbers from my notebook outputs.
+
+**Outcome:** Pending (I'll write the analysis).
+
+## [2026-11-23]
+
+**Context:** Section 7 recommendation.
+
+**Prompt/request:** Asked to discuss the recommendation in more depth.
+
+**What Claude did:** Laid out the decision: which methods are dominated
+(zero-/few-shot are worse and slower than TF-IDF-9,543), the real choice
+(LoRA vs TF-IDF-9,543), what the gap means in errors at scale (accuracy 0.882
+vs 0.794, about 88 fewer mistakes per 1,000 tweets; negative F1 0.781 vs
+0.613), cost at scale from my measured times (1M tweets: ~10 s vs ~5.7 GPU
+hours, not optimized), one-time training cost, and conditions that would
+change the choice (no GPU / extreme volume / latency, how much errors cost,
+drift and retraining, label quality, a hybrid). Asked which way I lean.
+
+**How I checked it:** Arithmetic from my Section 2/4/6 numbers.
+
+**Outcome:** Pending (I'll write my recommendation).
+
+## [2026-11-23]
+
+**Context:** Section 7 analysis and recommendation cell (hw2-32), my draft.
+
+**Prompt/request:** Asked for a review of my Section 7 analysis and recommendation.
+
+**What Claude did:** Reviewed my draft (no rewriting). Analysis: the slice
+paragraph calls it "accuracy for TF-IDF" when it's LoRA's macro-F1 lead; the
+trust argument should be that each slice's interval overlaps its rest's, plus
+the solid finding that LoRA leads in every slice; "volatility as a common
+reason" rests on one tweet. Recommendation: name both prompting methods as
+dominated; "recall" → macro-F1; "more memory" → more GPU compute; the speed
+argument is weak because ~21 s per 1,000 tweets is ~20 ms per tweet, fast
+enough for a live feed (the real cost is GPU hours at bulk volume); an
+88-per-1,000 error gap isn't "slightly less accurate"; an unfinished sentence
+and an off-topic law-firm line; the final choice wavers between TF-IDF and a
+hybrid (untested); training costs and the error analysis aren't used yet, though
+the assignment asks for them. Listed typos.
+
+**How I checked it:** Numbers checked against my Section 2/4/6/7 outputs.
+
+**Outcome:** Pending (I'll revise).
+
+## [2026-11-23]
+
+**Context:** Section 7 write-up, second pass.
+
+**Prompt/request:** Asked Claude to reread my revised Section 7 analysis and
+recommendation and list the remaining gaps.
+
+**What Claude did:** Reread the cell and my revised 910/1483 reasons (now
+defensible as "hard"; noted the marks cell should be rerun so the displayed
+table shows the new wording). Listed what's still open: the analysis lacks the
+explicit "slice and rest intervals overlap" argument, and the "volatility is a
+common reason" sentence rests on one tweet; the recommendation still uses the
+speed argument and "slightly less accurate" (contradicted by ~20 ms per tweet
+and the 88-per-1,000 gap), still says "recall" and "memory", still has the
+law-firm line, still wavers between TF-IDF and an untested hybrid, and still
+doesn't use the training costs or the error analysis. Listed remaining typos.
+
+**How I checked it:** Compared with the previous review and my outputs.
+
+**Outcome:** Pending (I'll revise).
+
+## [2026-11-23]
+
+**Context:** Section 7 recommendation, third pass.
+
+**Prompt/request:** Asked Claude to check my updated recommendation.
+
+**What Claude did:** Reviewed it: error analysis now used in both places and
+the speed argument fixed. Still open: training costs (Sections 2/4/5) not yet
+included, the cost argument has no numbers, two final answers (TF-IDF in one
+paragraph, hybrid in the next), the hybrid isn't marked untested and has no
+"unsure" rule, "recall" → macro-F1, an unclear "ratio of performance" phrase,
+and the law-firm line. Listed typos.
+
+**How I checked it:** Against my Section 2/4/5/6 numbers.
+
+**Outcome:** Pending (I'll revise).
+
+## [2026-11-23]
+
+**Context:** Submission preparation.
+
+**Prompt/request:** Asked what to include in the submission archive.
+
+**What Claude did:** Listed the required files from ASSIGNMENT.pdf ("Files to
+submit") and what to leave out, then checked the repo for gaps: README.md is
+still the starter version (no hardware or run steps), the notebook cites no
+sources (Ch3/Ch6/Ch12 notebooks, HW1 code, scikit-learn docs), two Markdown
+TODO lines (hw2-14, hw2-23) and stale TODO code comments remain, Section 1's
+analysis still defines the label by tone and lacks the macro-F1 paragraph, and
+many `ai-use.md` entries still say "Pending".
+
+**How I checked it:** Read README.md, grepped the notebook for TODO lines and
+citations, and counted "Pending" entries in ai-use.md.
+
+**Outcome:** Pending.
+
+## [2026-11-23]
+
+**Context:** Section 2 cell (hw2-09), rerun while removing a TODO comment.
+
+**Prompt/request:** Asked why the cell errors.
+
+**What Claude did:** Diagnosed `NameError: selection_gold`: it's defined in the
+Section 1 always-neutral cell, which hadn't run in the current kernel. Noted
+the rerun replaced the cell's saved output (training times 2.72 s / 5.94 s and
+the results table) with the error, and that rerunning would record new
+timings. Confirmed the original outputs are intact in commit d69c682 and
+offered to restore only that cell's outputs from git, keeping my edited source.
+
+**How I checked it:** Read the cell outputs on disk and in commit d69c682.
+
+**Outcome:** Pending (waiting for my choice).
+
+## [2026-11-23]
+
+**Context:** Section 2 cell (hw2-09) output restore.
+
+**Prompt/request:** Asked Claude to restore the cell's original output.
+
+**What Claude did:** Edited the notebook (AI-edited): copied only hw2-09's
+outputs and execution count from commit d69c682 into the current file,
+keeping my edited source. Backed up the file first.
+
+**How I checked it:** Claude confirmed only hw2-09 changed versus the backup,
+the source was unchanged, and the restored output reads "Train time 1: 2.72
+seconds / Train time 2: 5.94 seconds" with the original table.
+
+**Outcome:** Applied; I need to Revert in VS Code to load it.
