@@ -4,6 +4,50 @@
 
 - Claude Code (Claude Opus 5.5)
 
+## Summary
+
+The full chronological log follows this summary. Every entry is one Claude Code
+session exchange.
+
+**Code Claude wrote (marked "Claude-authored" or "AI-edited" in the log):**
+
+- Section 1: the data-inspection cells (class counts, example tweets, the
+  always-neutral baseline).
+- Section 2: fixes to my TF-IDF pipeline code, the results table, and the
+  `plot_confusion` helper (adapted from my Homework 1 code).
+- Section 3: batched generation (`generate`, `run_prompt`), the prompt-scoring
+  loop and the few-shot builder (`sample_examples`, `few_shot_template`). The
+  prompt wording is mine.
+- Sections 4–6: the LoRA training dataset, `train_lora`, the loss plot, adapter
+  save and reload (`score_adapter`), the Section 5 comparison loop and plots, and
+  the Section 6 test evaluation. These follow the course Ch12 notebook.
+- Section 7: the slice table with bootstrap intervals and the all-wrong table,
+  plus the marks cell's structure.
+- README.md
+
+**What I did myself:**
+
+- Wrote all the written analysis in Sections 1–7 and the recommendation.
+  Claude explained concepts and reviewed my drafts. I revised in my own words
+  and kept or rejected its suggestions (see each Outcome).
+- Wrote the prompt wording and chose the final settings: zero_1, few_A and
+  LoRA r = 64, α = 32, by highest selection macro-F1.
+- Read the 15 all-wrong tweets and marked each as hard, ambiguous or mislabeled.
+- Ran the full notebook on the 20 GB GPU Gateway system.
+
+**How the output was checked:**
+
+- I ran all code end to end on the GPU and checked the numbers in my analysis
+  against the saved tables and CSVs.
+- I compared Claude's explanations with the course Ch3, Ch6 and Ch12 notebooks
+  and the scikit-learn, PEFT and TRL documentation.
+- Claude checked the trainable-parameter count by hand (69.7M at r = 64) and
+  checked TRL's loss behavior in the installed source.
+- When Claude made a mistake (for example, attributing the training-speed
+  difference to scaling rather than α), the correction is recorded in the log.
+
+No AI tools other than Claude Code were used.
+
 ## Log
 
 ## [2026-11-15]
@@ -312,8 +356,7 @@ ID_TO_LABEL are already available from earlier cells. Did not edit the notebook.
 **How I checked it:** Claude ran the imports in the repo `.venv` (scikit-learn
 1.9.1) to confirm they work.
 
-**Outcome:** Pending (I'll paste them into the Section 2 cell).
-
+**Outcome:** Used as-is: the imports are at the top of the Section 2 cell.
 ## [2026-11-16 20:45]
 
 **Context:** Section 2 (Establish baselines), porting the Ch6 pipeline.
@@ -347,8 +390,7 @@ recording identical vectorizer settings).
 
 **How I checked it:** Not yet checked (re-run the cell).
 
-**Outcome:** Pending.
-
+**Outcome:** Used: changed `.fit`/`.predict` to take the tweet text and label names, and added `class_weight="balanced"` and `max_iter`.
 ## [2026-11-16 21:20]
 
 **Context:** Section 2 (Establish baselines), cell hw2-09.
@@ -362,8 +404,7 @@ was missing `class_weight="balanced"` and `max_iter`.
 
 **How I checked it:** Not yet checked (re-run the cell).
 
-**Outcome:** Pending.
-
+**Outcome:** Used: replaced `id[l]` with `ID_TO_LABEL[l]` and gave `pipe_all` the same settings.
 ## [2026-11-16 21:30]
 
 **Context:** Section 2 baselines / charting predictions (also relevant to Section 6).
@@ -412,8 +453,7 @@ works (including the unparsed column). Did not edit the notebook.
 
 **How I checked it:** Claude ran it in a scratch script and checked the plot.
 
-**Outcome:** Pending (I'll paste it in).
-
+**Outcome:** Used as-is: `plot_confusion` is in Section 2 and was reused for the Section 6 confusion matrices.
 ## [2026-11-16 21:50]
 
 **Context:** Section 2 training time (and later prediction/training timings).
@@ -478,8 +518,7 @@ training times, and explained what each column of `score`'s output means.
 
 **How I checked it:** Not yet checked (run in my notebook).
 
-**Outcome:** Pending.
-
+**Outcome:** Used as-is: the `baseline_results` table in Section 2.
 ## [2026-11-16 22:10]
 
 **Context:** Section 2, interpreting confusion matrices.
@@ -568,8 +607,7 @@ doesn't fit in 6 GB) on 8 selection tweets: batched (size 4) outputs were
 identical to one-at-a-time outputs, confirming left padding works. Still need to
 run it in float32 on the GPU Gateway.
 
-**Outcome:** Pending.
-
+**Outcome:** Used: `generate` and `run_prompt` in Section 3, run in float32 on the GPU Gateway.
 ## [2026-11-20]
 
 **Context:** Section 3, designing prompts.
@@ -600,8 +638,7 @@ macro-F1. Shared in chat; did not edit the notebook.
 
 **How I checked it:** Not yet checked (needs the GPU Gateway).
 
-**Outcome:** Pending.
-
+**Outcome:** Used: the prompt loop and results table in Section 3 (with my own prompt wording).
 ## [2026-11-20]
 
 **Context:** Section 3, building few-shot prompts.
@@ -620,8 +657,7 @@ size (different-examples pair). Explained balanced vs proportional sampling.
 the two sets don't overlap, the reversed template flips the order, and each
 template has exactly one `{tweet}` placeholder.
 
-**Outcome:** Pending.
-
+**Outcome:** Used as-is: `sample_examples`/`few_shot_template` built few_A, few_A_reversed and few_B.
 ## [2026-11-20]
 
 **Context:** Section 3 cells hw2-12 (generation) and hw2-13 (prompts/scoring).
@@ -641,8 +677,7 @@ model loading. Backup saved in the scratchpad before editing.
 **How I checked it:** Claude validated the notebook schema and compiled both
 cells; not yet run on the GPU.
 
-**Outcome:** Pending (rerun hw2-12, then hw2-13).
-
+**Outcome:** Used; reran the two cells on the GPU Gateway.
 ## [2026-11-20]
 
 **Context:** Section 3, running generation.
@@ -677,8 +712,7 @@ bf16 LoRA training won't work on the laptop's Turing GPU.
 **How I checked it:** Earlier float16 test on the laptop GPU (8 tweets) worked;
 this switch is not yet run.
 
-**Outcome:** Pending.
-
+**Outcome:** Not used: the final runs were float32 on the 20 GB GPU, and the float16 switch is not in the notebook.
 ## [2026-11-20]
 
 **Context:** Compute planning for local drafting.
@@ -760,8 +794,7 @@ that float32 training (~9.3 GB) won't fit on the 8 GB 3070.
 tokenizer's special tokens. The fixed settings come from ASSIGNMENT.pdf. The
 draft code has not been run yet.
 
-**Outcome:** Pending.
-
+**Outcome:** Used: the training-dataset cell in Section 4.
 ## [2026-11-20 21:45]
 
 **Context:** Section 4, cells 22–24 (training dataset, LoRA training, save/reload/score).
@@ -785,8 +818,7 @@ step, and decoded the example to confirm the ending. Added a `DEV_RUN` flag
 the dataset-prep source in the installed versions (trl 1.9.2, peft 0.20.0,
 transformers 5.14.1). The code has not been run yet (cell 19 still running).
 
-**Outcome:** Pending.
-
+**Outcome:** Used: `train_lora`, the loss plot and save/reload in Section 4, run on the 20 GB GPU with `DEV_RUN = False`.
 ## [2026-11-20 21:55]
 
 **Context:** Section 5 (Compare LoRA settings), cells 27–28, plus a revised cell 24.
@@ -807,8 +839,7 @@ the zero-shot prompt by macro-F1 rather than hard-coding it, and setting
 **How I checked it:** Checked against the assignment's Section 5 table and
 deliverables. The code has not been run yet.
 
-**Outcome:** Pending.
-
+**Outcome:** Used: the Section 5 loop, table and plots.
 ## [2026-11-20 22:05]
 
 **Context:** Section 6 (Evaluate once on the test set), cells 33–34.
@@ -832,8 +863,7 @@ prompt from the saved `selection_*.csv` files to back the few-shot choice.
 **How I checked it:** Claude syntax-checked both cells. They have not been run
 yet, because the adapters don't exist until Sections 4–5 run.
 
-**Outcome:** Pending.
-
+**Outcome:** Used: the Section 6 evaluation cells, which produced `test_predictions.csv` and `test_results.csv`.
 ## [2026-11-20 22:10]
 
 **Context:** Section 7 (failure analysis) and remote-run setup.
@@ -904,8 +934,7 @@ vectorizer settings. Gave feedback only; did not rewrite my text.
 
 **How I checked it:** Not yet checked.
 
-**Outcome:** Pending (I'll revise my drafts).
-
+**Outcome:** Revised in my own words: Section 1 now defines the label by outlook and explains macro-F1; Section 2 kept my wording.
 ## [2026-11-22]
 
 **Context:** Section 3 analysis (interpreting the prompt results table).
@@ -926,8 +955,7 @@ Compared with the TF-IDF baselines. Left the write-up to me.
 **How I checked it:** Claude computed the unparsed breakdown from
 `selection_few_*.csv`; other numbers are from my notebook output.
 
-**Outcome:** Pending (I'll write the Section 3 analysis).
-
+**Outcome:** Wrote the Section 3 analysis myself using these points.
 ## [2026-11-22]
 
 **Context:** Section 3 analysis cell (hw2-14), my draft.
@@ -946,8 +974,7 @@ tweet. Also noted a stale TODO comment in cell hw2-16.
 
 **How I checked it:** Compared my draft against `prompt_results.csv`.
 
-**Outcome:** Pending (I'll revise my answer).
-
+**Outcome:** Revised my Section 3 answer in my own words.
 ## [2026-11-22]
 
 **Context:** Section 4 analysis (LoRA fine-tuning), before I write it.
@@ -970,8 +997,7 @@ plateau mostly reflects unpredictable tweet text. Selection scores (0.848 vs
 exactly; adapter size matches params × 4 bytes; TRL behaviour read from
 `trl/trainer/sft_trainer.py` in the repo `.venv`.
 
-**Outcome:** Pending (I'll write the Section 4 analysis).
-
+**Outcome:** Wrote the Section 4 analysis myself and included the A/B parameter table Claude computed.
 ## [2026-11-22]
 
 **Context:** Section 4 analysis (model size / trainable percentage).
@@ -1065,8 +1091,7 @@ evidence to the loss paragraph. Listed typos. Did not rewrite my text.
 
 **How I checked it:** Compared against my notebook outputs and the PEFT config.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised: fixed the LM-head and learning-rate wording; other wording is mine.
 ## [2026-11-22]
 
 **Context:** Section 5 analysis (LoRA settings), before I write it.
@@ -1089,8 +1114,7 @@ clutter and a stale TODO comment.
 **How I checked it:** Numbers from `lora_runs.csv` and the saved plot; final
 choice from `section6_state.json`.
 
-**Outcome:** Pending (I'll write the Section 5 analysis).
-
+**Outcome:** Wrote the Section 5 analysis myself using these numbers.
 ## [2026-11-22]
 
 **Context:** Section 5 analysis (reading the loss curves and rank plot).
@@ -1144,8 +1168,7 @@ one epoch, zero cost), with suggested sentences for the write-up.
 
 **How I checked it:** Numbers from `lora_runs.csv`.
 
-**Outcome:** Pending (I'll write it in my own words).
-
+**Outcome:** Used the rank-vs-scaling framing in my own words.
 ## [2026-11-22]
 
 **Context:** Section 5 analysis (single seed / 600-tweet limits).
@@ -1163,8 +1186,7 @@ curve; every LoRA run far above prompting and TF-IDF) and what they don't
 
 **How I checked it:** Gaps compared with the earlier bootstrap noise estimate.
 
-**Outcome:** Pending (I'll write it in my own words).
-
+**Outcome:** Used the limits explanation in my own words.
 ## [2026-11-22]
 
 **Context:** Section 5 analysis cell (hw2-23), my draft.
@@ -1181,8 +1203,7 @@ choice rule should name selection macro-F1; typos. Did not rewrite my text.
 
 **How I checked it:** Compared against `lora_runs.csv`.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised: fixed the r/α definitions and the learning-rate wording, and added the cost of scaling and the limits.
 ## [2026-11-22]
 
 **Context:** Checklist before Section 6 (final choices table).
@@ -1197,8 +1218,7 @@ selection macro-F1.
 
 **How I checked it:** Values copied from the saved result files.
 
-**Outcome:** Pending (I'll paste it into the checklist cell).
-
+**Outcome:** Used: filled in the checklist table.
 ## [2026-11-22]
 
 **Context:** Section 5 analysis (score vs cost; limits).
@@ -1234,8 +1254,7 @@ polar tweets missed as neutral rose from 80 to 119; negative precision 49% →
 **How I checked it:** Confusion matrices recomputed with sklearn from the CSV;
 other numbers from my saved results.
 
-**Outcome:** Pending (I'll write the Section 6 analysis).
-
+**Outcome:** Wrote the Section 6 analysis myself using these numbers.
 ## [2026-11-22]
 
 **Context:** Section 6 analysis cell (hw2-28), my draft.
@@ -1256,8 +1275,7 @@ prompts dropped most and that the ranking is unchanged. Did not rewrite my text.
 
 **How I checked it:** Numbers checked against my result files.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised: corrected the confusion-matrix counts and the +0.19/+0.251 comparison, and removed the loss sentence.
 ## [2026-11-22]
 
 **Context:** Setting up Section 7 without disturbing Section 1–6 outputs.
@@ -1276,8 +1294,7 @@ cells).
 
 **How I checked it:** `git diff` of the result files against commit 2034538.
 
-**Outcome:** Pending.
-
+**Outcome:** Followed: ran only the Setup cells and the Section 7 resume cell.
 ## [2026-11-22]
 
 **Context:** Section 7 (failure analysis), planning before writing code.
@@ -1296,8 +1313,7 @@ differences the intervals can't separate.
 **How I checked it:** Scratch computation from the saved CSV; to be reproduced
 in my notebook cells.
 
-**Outcome:** Pending.
-
+**Outcome:** Used the four slices discussed.
 ## [2026-11-22]
 
 **Context:** Section 7 code (cells hw2-30, hw2-31, and a new marks cell).
@@ -1316,8 +1332,7 @@ mislabeled/ambiguous/hard marks and reasons are left for me to write.
 **How I checked it:** Claude ran all three cells in a scratch script against
 `test_predictions.csv` (slice cell ~55 s); outputs matched the earlier preview.
 
-**Outcome:** Pending (I'll paste, run, and write my own marks).
-
+**Outcome:** Used as-is for the slice and all-wrong cells; the 15 marks and reasons are my own.
 ## [2026-11-22]
 
 **Context:** Section 7 marks cell.
@@ -1366,8 +1381,7 @@ hasn't been run yet and two typos.
 
 **How I checked it:** Compared each reason with the gold label from `test_predictions.csv`.
 
-**Outcome:** Pending (marks are my decision).
-
+**Outcome:** The marks and reasons are my own. I later reworded the 910 and 1483 reasons and kept both as hard. Final counts: 10 hard, 3 ambiguous, 2 mislabeled.
 ## [2026-11-23]
 
 **Context:** Section 7 analysis and recommendation, before I write them.
@@ -1386,8 +1400,7 @@ ambiguous, 2 mislabeled) and what that says about the labels. Noted my 910 and
 
 **How I checked it:** Numbers from my notebook outputs.
 
-**Outcome:** Pending (I'll write the analysis).
-
+**Outcome:** Wrote the Section 7 analysis myself.
 ## [2026-11-23]
 
 **Context:** Section 7 recommendation.
@@ -1405,8 +1418,7 @@ drift and retraining, label quality, a hybrid). Asked which way I lean.
 
 **How I checked it:** Arithmetic from my Section 2/4/6 numbers.
 
-**Outcome:** Pending (I'll write my recommendation).
-
+**Outcome:** Wrote my own recommendation (a TF-IDF/LoRA hybrid).
 ## [2026-11-23]
 
 **Context:** Section 7 analysis and recommendation cell (hw2-32), my draft.
@@ -1428,8 +1440,7 @@ the assignment asks for them. Listed typos.
 
 **How I checked it:** Numbers checked against my Section 2/4/6/7 outputs.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised partly: adopted the LoRA-leads-in-every-slice point and fixed the slice wording; kept my own wording elsewhere.
 ## [2026-11-23]
 
 **Context:** Section 7 write-up, second pass.
@@ -1449,8 +1460,7 @@ doesn't use the training costs or the error analysis. Listed remaining typos.
 
 **How I checked it:** Compared with the previous review and my outputs.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised partly: replaced the speed argument with cost and added the latency point; kept my own wording elsewhere.
 ## [2026-11-23]
 
 **Context:** Section 7 recommendation, third pass.
@@ -1466,8 +1476,7 @@ and the law-firm line. Listed typos.
 
 **How I checked it:** Against my Section 2/4/5/6 numbers.
 
-**Outcome:** Pending (I'll revise).
-
+**Outcome:** Revised partly: added the error analysis to the hybrid paragraph; kept my own recommendation and wording.
 ## [2026-11-23]
 
 **Context:** Submission preparation.
@@ -1485,8 +1494,7 @@ many `ai-use.md` entries still say "Pending".
 **How I checked it:** Read README.md, grepped the notebook for TODO lines and
 citations, and counted "Pending" entries in ai-use.md.
 
-**Outcome:** Pending.
-
+**Outcome:** Followed: rewrote the README, added citations, removed TODO lines and fixed Section 1.
 ## [2026-11-23]
 
 **Context:** Section 2 cell (hw2-09), rerun while removing a TODO comment.
@@ -1502,8 +1510,7 @@ offered to restore only that cell's outputs from git, keeping my edited source.
 
 **How I checked it:** Read the cell outputs on disk and in commit d69c682.
 
-**Outcome:** Pending (waiting for my choice).
-
+**Outcome:** Chose to restore the original output from git (next entry).
 ## [2026-11-23]
 
 **Context:** Section 2 cell (hw2-09) output restore.
@@ -1540,8 +1547,7 @@ dataset and model pages).
 **How I checked it:** Times computed from my Section 3–6 measurements; file
 paths checked in the course materials folder. README not yet reviewed by me.
 
-**Outcome:** Pending.
-
+**Outcome:** Used the README as drafted (20 GB GPU). Pasted the citations without the dataset/model links, and revised Section 1 myself.
 ## [2026-11-23]
 
 **Context:** Submission packaging.
@@ -1558,3 +1564,20 @@ outcomes still in this log.
 inside it.
 
 **Outcome:** Applied.
+
+## [2026-11-23]
+
+**Context:** Submission, `ai-use.md` itself.
+
+**Prompt/request:** Asked what the graders want in `ai-use.md` and whether to
+submit the full log.
+
+**What Claude did:** Quoted the requirement (tools used, important prompts or
+requests, how output was checked; graded under "Clarity, reproducibility, and
+attribution") and recommended keeping the full log but adding a short summary
+at the top (tools, what AI wrote per section, what I wrote myself, how it was
+checked), plus resolving the "Pending" outcomes. Offered to draft the summary.
+
+**How I checked it:** Against ASSIGNMENT.pdf "Files to submit" and "Grading".
+
+**Outcome:** Added the summary at the top and kept the full log below it.
